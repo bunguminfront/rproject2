@@ -1,0 +1,109 @@
+﻿library(readr)
+library(tm)
+setwd("C:\\Users\\bungum\\Documents")
+filename <- "preprocessed50000.csv"
+
+mydata <- read_csv(filename)
+colnames(mydata) <- c("text")
+
+ss <- mydata[1:1000,]
+
+exdoc <- mydata[1,]$text
+
+exdoc <- c("It s possible that Brexit treated strictly as an intellectual concept is a brilliant idea .",
+"However, it was sold with falsehoods and is now being mismanaged .",
+"To cite just a few Brexiter politicians : David Davis sketched a deal with the EU as simply a matter of a quick visit to Berlin ; Daniel Hannan said that obviously the UK wouldn ’t leave the European single market; and Nigel Farage predicted that other countries would follow Britain out of Europe .",
+"It hasn ’t quite turned out like that .",
+"More than a year after the referendum, the cabinet still can ’t agree on what kind of Brexit it wants, or when .",
+"The British state is steaming towards its third disaster in 15 years, after the Iraq war and the financial crisis .",
+"Like both previous disasters, Brexit reveals three enduring flaws in the UK s workings .")
+
+c <- VectorSource(exdoc)
+ft.corpus <- Corpus(c,
+readerControl = list(language = " eng ", reader = readPlain))
+
+dtm <- DocumentTermMatrix(ft.corpus)
+tdm <- TermDocumentMatrix(ft.corpus)
+dtm.sparse <- removeSparseTerms(dtm, 0.93)
+
+dtm.sparse
+
+library(lsa)
+td = tempfile() \ndir.create(td)
+write(c(" dog ", " cat ", " mouse "), file = paste(td, " D1 ", sep = " / "))
+write(c(" hamster ", " mouse ", " sushi "), file = paste(td, " D2 ", sep = " / "))
+write(c(" dog ", " monster ", " monster "), file = paste(td, " D3 ", sep = " / "))
+write(c(" dog ", " mouse ", " dog "), file = paste(td, " D4 ", sep = " / ")
+
+myMatrix = textmatrix(td, minWordLength = 1)
+# create the latent semantic space 
+myLSAspace = lsa(myMatrix, dims = dimcalc_raw())
+# display it as a textmatrix again 
+round(as.textmatrix(myLSAspace), 2) # should give the original
+# create the latent semantic space 
+myLSAspace = lsa(myMatrix, dims = dimcalc_share())
+
+# display it as a textmatrix again 
+myNewMatrix = as.textmatrix(myLSAspace)
+myNewMatrix # should look be different!
+# compare two terms with the cosine measure 
+cosine(myNewMatrix[" dog ",], myNewMatrix[" cat ",])
+# compare two documents with pearson 
+cor(myNewMatrix[, 1], myNewMatrix[, 2], method = " pearson ")
+# clean up \nunlink(td, recursive=TRUE)
+
+ftmat <- as.matrix(tdm)
+myMatrix <- ftmat
+# replicating the lsa with the svd library
+library(svd)
+mySVD <- svd(myMatrix)
+reconstructed <- mySVD$u %*% diag(mySVD$d) %*% t(mySVD$v)
+round(reconstructed) == myMatrix
+# how many dimensions?
+
+dimensions <- 4
+mySVD$u[, 1:dimensions] %*% diag(mySVD$d[1:dimensions]) %*% t(mySVD$v[, 1:dimensions])
+#plotting the decomposed matrix as colors
+library(plotrix)
+#cellcol <- color.scale(cbind(x, c(-1, rep(1, 31))), c(0, 1), 0, c(1, 0))[, 1:32]
+#color2D.matplot(t(mySVD$v[, 1:dimensions]), cellcolors = cellcol, main = " Document relatedness ")
+concepts <- t(mySVD$v[, 1:dimensions])
+d <- dim(concepts)
+cellcol <- color.scale(cbind(concepts, c(-1, rep(1, d[1] - 1))), c(0, 1), 0, c(1, 0))[, 1:d[1]]
+color2D.matplot(concepts, cellcolors = cellcol, main = " Document relatedness ")
+
+library(ggplot2)
+wmdf <- as.data.frame(mySVD$u[, 1:dimensions])
+words <- rownames(myMatrix)
+plotwords <- ggplot(data = wmdf, aes(V1, V2, color = V3))
+plotwords <- plotwords + geom_point()
+plotwords
+
+plotwords + geom_text(aes(V1, V2, label = words, group = NULL), data = wmdf) + geom_point()
+# extract the most prominent sentences
+for (i in 1:dimensions) {
+    print(exdoc[which.max(t(mySVD$v[, 1:dimensions])[i,])])
+}
+
+
+distwords <- function(w1, w2) {
+    w1i <- which(rownames(myMatrix) == w1)
+    w2i <- which(rownames(myMatrix) == w2)
+    print(w1i)
+    print(w2i)
+    cosine(mySVD$u[w1i,], mySVD$u[w2i,])
+    }
+distwords("berlin", "brexit")
+
+sumElements <- function(col) {
+    mycol <- t(mySVD$v[, 1:dimensions])[, col]
+    sum <- 0
+    for (i in 1:dimensions) {
+        val <- mycol[i] * mySVD$d[i]
+        #print(val)
+        sum <- sum + val
+        #print(sum)
+    }
+    return (sum)
+}
+sumElements(1)
