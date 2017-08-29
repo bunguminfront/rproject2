@@ -4,12 +4,25 @@ library(tm)
 library(LDAvis)
 
 setwd("C:\\Users\\bungum\\Documents")
+# saving code
 system.time(save(mydf, file = c("mydf_full_columns_fixed_1346_with_date.RData")))
 system.time(save(dj.corpus_tok, file = c("dj.corpus_tok.RData")))
+system.time(save(dj.select, file = c("dj.select.RData")))
+system.time(save(dj.select, file = c("dj.select_ibm_full_origdate.RData")))
+system.time(save(isindf, file = c("isindf_ibm.RData")))
+system.time(save(isindf, file = c("isindf_ibm_full_origdate.RData")))
 
+system.time(save(dj.select, file = c("dj.select_ibm_1y.RData")))
+system.time(save(isindf, file = c("isindf_ibm_1y_full_origdate.RData")))
+
+# load code
 system.time(load("mydf_full_columns_fixed_1346_with_date.RData"))
 system.time(load("dtm_train_1372718x16384.RData"))
 system.time(load("dj.corpus_tok.RData"))
+system.time(load("dj.select.RData"))
+system.time(load("isindf_ibm.RData"))
+system.time(load("dj.select_ibm_1y.RData"))
+system.time(load("isindf_ibm_1y_full_origdate.RData"))
 
 # Function: Visualize LDA model (create JSON object)
 topicmodels_json_ldavis <- function(fitted, corpus, doc_term) {
@@ -247,7 +260,8 @@ stl <- "NO0010096985"
 ibm <- "US4592001014"
 tesla <- "US88160R1014"
 
-isin_selection <- which(grepl(ibm, mydf$isins) & !mydf$NENG & mydf[,]$date > as.Date("2016-12-01", "%Y-%m-%d") & mydf[,]$date < as.Date("2016-12-08", "%Y-%m-%d"))
+isin_selection <- which(grepl(ibm, mydf$isins) & !mydf$NENG & mydf[,]$date > as.Date("2016-07-01", "%Y-%m-%d") & mydf[,]$date < as.Date("2017-06-01", "%Y-%m-%d"))
+#isin_selection <- which(grepl(ibm, mydf$isins) & !mydf$NENG)
 length(isin_selection)
 dj.select <- dj.corpus[isin_selection]
 

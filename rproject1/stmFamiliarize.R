@@ -2,11 +2,11 @@ library(stm)
 
 polit_url <- "http://scholar.princeton.edu/sites/default/files/bstewart/files/poliblogs2008.csv"
 
-download.file(polit_url, "poliboligs2008.csv")
+download.file(polit_url, "poliblogs2008.csv")
 
 load(url("http://goo.gl/VPdxlS"))
 
-data <- read.csv("poliboligs2008.csv")
+data <- read.csv("poliblogs2008.csv")
 processed <- textProcessor(data$documents, metadata = data)
 out <- prepDocuments(processed$documents, processed$vocab, processed$meta)
 docs <- out$documents
@@ -19,7 +19,7 @@ out <- prepDocuments(processed$documents, processed$vocab, processed$meta, lower
 poliblogPrevFit <- stm(documents = out$documents,
     vocab = out$vocab, K = 20,
     prevalence = ~rating + s(day),
-    max.em.its = 75,
+    max.em.its = 15,
     data = out$meta, init.type = "Spectral")
 
 teslaPrevFit <- stm(documents = out$documents,
@@ -63,8 +63,8 @@ plot(prep, covariate = "rating", topics = c(3, 7, 20),
     xlim = c(-.1, .1), labeltype = "custom",
     custom.labels = c('Obama', 'Sarah Palin', 'Bush Presidency'))
 
-plot(prep, "day", method = "continuous", topics = 1,
-    model = z, printlegend = FALSE, xaxt = "n", xlab = "Time (2008)")
+plot(prep, "day", method = "continuous", topics = 7,
+    model = z, printlegend = TRUE, xaxt = "n", xlab = "Time (2008)")
 monthseq <- seq(from = as.Date("2008-01-01"),
     to = as.Date("2008-12-01"), by = "month")
 monthnames <- months(monthseq)
