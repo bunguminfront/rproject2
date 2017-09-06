@@ -24,6 +24,8 @@ system.time(load("isindf_ibm.RData"))
 system.time(load("dj.select_ibm_1y.RData"))
 system.time(load("isindf_ibm_1y_full_origdate.RData"))
 
+system.time(load("dj.corpus_tok_PAR.RData"))
+
 # Function: Visualize LDA model (create JSON object)
 topicmodels_json_ldavis <- function(fitted, corpus, doc_term) {
     ## Required packages
@@ -260,10 +262,10 @@ stl <- "NO0010096985"
 ibm <- "US4592001014"
 tesla <- "US88160R1014"
 
-isin_selection <- which(grepl(ibm, mydf$isins) & !mydf$NENG & mydf[,]$date > as.Date("2016-07-01", "%Y-%m-%d") & mydf[,]$date < as.Date("2017-06-01", "%Y-%m-%d"))
+isin_selection <- which(grepl(stl, mydf$isins) & !mydf$NENG & mydf[,]$date > as.Date("2016-07-01", "%Y-%m-%d") & mydf[,]$date < as.Date("2017-06-01", "%Y-%m-%d"))
 #isin_selection <- which(grepl(ibm, mydf$isins) & !mydf$NENG)
 length(isin_selection)
-dj.select <- dj.corpus[isin_selection]
+dj.select_tok <- dj.corpus_tok[isin_selection]
 
 system.time(dj.select_tok <- tokenize_corp(dj.select))
 system.time(dj.corpus_tok <- tokenize_corp(dj.corpus))
@@ -274,7 +276,7 @@ dj.red.dtm <- remove_sparse_terms(dj.dtm)
 dj.red.dtm
 
 # select number of topics
-topicNumber <- 10
+topicNumber <- 50
 # Run model
 system.time(dj.model <- topicmodels::LDA(dj.red.dtm,
 topicNumber,
@@ -297,3 +299,8 @@ topicLabel
 
 dj.json <- topicmodels_json_ldavis(dj.model, dj.select, dj.red.dtm)
 serVis(dj.json)
+
+data(immigration_perceptions)
+stmCorrViz(immigration_perceptions$model, "corrviz.html",
+documents_raw = immigration_perceptions$raw_documents,
+documents_matrix = immigration_perceptions$documents_matrix)

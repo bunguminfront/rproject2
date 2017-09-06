@@ -22,6 +22,7 @@ dj.select <- dj.select[!duplicated(lapply(dj.select, '[[', 1))]
 
 
 myprocessed <- textProcessor(lapply(dj.select, '[[', 1), metadata = isindf)
+myprocessed <- textProcessor(dj.select, metadata = isindf)
 myout <- prepDocuments(myprocessed$documents, myprocessed$vocab, myprocessed$meta)
 mydocs <- myout$documents
 myvocab <- myout$vocab
@@ -100,7 +101,7 @@ monthnames <- months(monthseq)
 axis(1, at = as.numeric(monthseq) - min(as.numeric(monthseq))+541,
     labels = monthnames)
 
-system.time(ibmContent <- stm(myout$documents, myout$vocab, K = 50,
+system.time(vwContent <- stm(myout$documents, myout$vocab, K = 50,
     prevalence = ~ PRL + s(date), content = ~PRL,
     max.em.its = 75, data = myout$meta, init.type = "Spectral"))
 
